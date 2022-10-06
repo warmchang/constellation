@@ -126,7 +126,7 @@ func getVPCIP(ctx context.Context, provider string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		metadata = gcpcloud.New(gcpClient)
+		metadata = gcpcloud.NewMetadata(gcpClient)
 	case cloudprovider.QEMU:
 		metadata = &qemucloud.Metadata{}
 	default:

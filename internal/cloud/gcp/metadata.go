@@ -45,8 +45,8 @@ type Metadata struct {
 	api API
 }
 
-// New creates a new Provider with real API and FS.
-func New(api API) *Metadata {
+// NewMetadata creates a new Provider with real API and FS.
+func NewMetadata(api API) *Metadata {
 	return &Metadata{
 		api: api,
 	}

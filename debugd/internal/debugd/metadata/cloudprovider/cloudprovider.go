@@ -39,7 +39,7 @@ func NewGCP(ctx context.Context) (*Fetcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	metaAPI := gcpcloud.New(gcpClient)
+	metaAPI := gcpcloud.NewMetadata(gcpClient)
 
 	return &Fetcher{
 		metaAPI: metaAPI,

@@ -85,7 +85,10 @@ func main() {
 		if err != nil {
 			log.With(zap.Error).Fatalf("Failed to create GCP client")
 		}
-		metadataAPI = gcpcloud.New(gcpClient)
+		metadataAPI = gcpcloud.NewMetadata(gcpClient)
+
+	case "aws":
+		panic("AWS is not supported yet")
 
 	case "qemu":
 		diskPath = qemuStateDiskPath

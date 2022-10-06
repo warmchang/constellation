@@ -90,7 +90,7 @@ func TestList(t *testing.T) {
 			if tc.instancesMutator != nil {
 				tc.instancesMutator(&tc.client.retrieveInstancesValues)
 			}
-			metadata := New(&tc.client)
+			metadata := NewMetadata(&tc.client)
 			instances, err := metadata.List(context.Background())
 
 			if tc.wantErr {
@@ -164,7 +164,7 @@ func TestSelf(t *testing.T) {
 			assert := assert.New(t)
 			require := require.New(t)
 
-			cloud := New(&tc.client)
+			cloud := NewMetadata(&tc.client)
 			instance, err := cloud.Self(context.Background())
 
 			if tc.wantErr {
@@ -223,7 +223,7 @@ func TestGetInstance(t *testing.T) {
 			assert := assert.New(t)
 			require := require.New(t)
 
-			cloud := New(&tc.client)
+			cloud := NewMetadata(&tc.client)
 			instance, err := cloud.GetInstance(context.Background(), tc.providerID)
 
 			if tc.wantErr {
