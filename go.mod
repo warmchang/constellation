@@ -107,6 +107,8 @@ require (
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
 )
 
+require github.com/aws/aws-sdk-go v1.44.41 // indirect
+
 require (
 	cloud.google.com/go v0.102.0 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect

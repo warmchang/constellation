@@ -20,16 +20,19 @@ import (
 	"github.com/edgelesssys/constellation/v2/bootstrapper/internal/kubernetes/k8sapi/kubectl"
 	"github.com/edgelesssys/constellation/v2/bootstrapper/internal/logging"
 	"github.com/edgelesssys/constellation/v2/internal/atls"
+	"github.com/edgelesssys/constellation/v2/internal/attestation/aws"
 	"github.com/edgelesssys/constellation/v2/internal/attestation/azure/snp"
 	"github.com/edgelesssys/constellation/v2/internal/attestation/azure/trustedlaunch"
 	"github.com/edgelesssys/constellation/v2/internal/attestation/gcp"
 	"github.com/edgelesssys/constellation/v2/internal/attestation/qemu"
 	"github.com/edgelesssys/constellation/v2/internal/attestation/simulator"
 	"github.com/edgelesssys/constellation/v2/internal/attestation/vtpm"
+	awscloud "github.com/edgelesssys/constellation/v2/internal/cloud/aws"
 	azurecloud "github.com/edgelesssys/constellation/v2/internal/cloud/azure"
 	"github.com/edgelesssys/constellation/v2/internal/cloud/cloudprovider"
 	gcpcloud "github.com/edgelesssys/constellation/v2/internal/cloud/gcp"
 	qemucloud "github.com/edgelesssys/constellation/v2/internal/cloud/qemu"
+
 	"github.com/edgelesssys/constellation/v2/internal/cloud/vmtype"
 	"github.com/edgelesssys/constellation/v2/internal/constants"
 	"github.com/edgelesssys/constellation/v2/internal/file"
@@ -71,7 +74,39 @@ func main() {
 
 	switch cloudprovider.FromString(os.Getenv(constellationCSP)) {
 	case cloudprovider.AWS:
-		panic("AWS cloud provider currently unsupported")
+		//panic("AWS cloud provider currently unsupported")
+		pcrs, err := vtpm.GetSelectedPCRs(vtpm.OpenVTPM, vtpm.AWSPCRSelection)
+		if err != nil {
+			log.With(zap.Error(err)).Fatalf("Failed to get selected PCRs")
+		}
+
+		pcrsJSON, err := json.Marshal(pcrs)
+		if err != nil {
+			log.With(zap.Error(err)).Fatalf("Failed to marshal PCRs")
+		}
+
+		issuer = initserver.NewIssuerWrapper(aws.NewIssuer(), vmtype.Unknown, nil)
+
+		metadata, err := awscloud.NewMetadata(ctx)
+		if err != nil {
+			log.With(zap.Error(err)).Fatalf("Failed to create AWS metadata API")
+		}
+
+		metadataAPI = metadata
+
+		//clusterInitJoiner = kubernetes.New(
+		//	"aws", k8sapi.NewKubernetesUtil(), &k8sapi.CoreOSConfiguration{}, kubectl.New(), awscloud.NewCloudControllerManager(metadata),
+		//	&awscloud.CloudNodeManager{}, &awscloud.Autoscaler{}, metadata, pcrsJSON,
+		//)
+
+		clusterInitJoiner = kubernetes.New(
+			"aws", k8sapi.NewKubernetesUtil(), &k8sapi.CoreOSConfiguration{}, kubectl.New(), nil,
+			nil, nil, metadata, pcrsJSON,
+		)
+
+		openTPM = vtpm.OpenVTPM
+		fs = afero.NewOsFs()
+
 	case cloudprovider.GCP:
 		pcrs, err := vtpm.GetSelectedPCRs(vtpm.OpenVTPM, vtpm.GCPPCRSelection)
 		if err != nil {
@@ -84,7 +119,7 @@ func main() {
 		if err != nil {
 			log.With(zap.Error(err)).Fatalf("Failed to create GCP metadata client")
 		}
-		metadata := gcpcloud.New(gcpClient)
+		metadata := gcpcloud.NewMetadata(gcpClient)
 		descr, err := metadata.Self(ctx)
 		if err != nil {
 			log.With(zap.Error(err)).Fatalf("Failed to get instance metadata")
@@ -109,6 +144,7 @@ func main() {
 		openTPM = vtpm.OpenVTPM
 		fs = afero.NewOsFs()
 		log.Infof("Added load balancer IP to routing table")
+
 	case cloudprovider.Azure:
 		pcrs, err := vtpm.GetSelectedPCRs(vtpm.OpenVTPM, vtpm.AzurePCRSelection)
 		if err != nil {
@@ -142,6 +178,7 @@ func main() {
 
 		openTPM = vtpm.OpenVTPM
 		fs = afero.NewOsFs()
+
 	case cloudprovider.QEMU:
 		pcrs, err := vtpm.GetSelectedPCRs(vtpm.OpenVTPM, vtpm.QEMUPCRSelection)
 		if err != nil {
@@ -164,6 +201,7 @@ func main() {
 
 		openTPM = vtpm.OpenVTPM
 		fs = afero.NewOsFs()
+
 	default:
 		issuer = initserver.NewIssuerWrapper(atls.NewFakeIssuer(oid.Dummy{}), vmtype.Unknown, nil)
 		clusterInitJoiner = &clusterFake{}
