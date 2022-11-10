@@ -8,6 +8,7 @@ package retry
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"k8s.io/utils/clock"
@@ -38,6 +39,7 @@ func NewIntervalRetrier(doer Doer, interval time.Duration, retriable func(error)
 
 // Do retries performing a call until it succeeds, returns a permanent error or the context is cancelled.
 func (r *IntervalRetrier) Do(ctx context.Context) error {
+	fmt.Println("Starting retry loop")
 	ticker := r.clock.NewTicker(r.interval)
 	defer ticker.Stop()
 
@@ -50,6 +52,7 @@ func (r *IntervalRetrier) Do(ctx context.Context) error {
 		if !r.retriable(err) {
 			return err
 		}
+		fmt.Printf("Error: %s is retriable, retrying in %s\n", err, r.interval)
 
 		select {
 		case <-ctx.Done():

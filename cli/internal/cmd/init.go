@@ -162,6 +162,7 @@ func initialize(cmd *cobra.Command, newDialer func(validator *cloudcmd.Validator
 }
 
 func initCall(ctx context.Context, dialer grpcDialer, ip string, req *initproto.InitRequest) (*initproto.InitResponse, error) {
+	fmt.Println("(initCall) Start")
 	doer := &initDoer{
 		dialer:   dialer,
 		endpoint: net.JoinHostPort(ip, strconv.Itoa(constants.BootstrapperPort)),
@@ -182,14 +183,18 @@ type initDoer struct {
 }
 
 func (d *initDoer) Do(ctx context.Context) error {
+	fmt.Println("(initDoer) Start")
 	conn, err := d.dialer.Dial(ctx, d.endpoint)
 	if err != nil {
+		fmt.Println("Connecting to Constellation... Error on dial: ", err)
 		return fmt.Errorf("dialing init server: %w", err)
 	}
 	defer conn.Close()
+	fmt.Println("(initDoer) Dial successful")
 	protoClient := initproto.NewAPIClient(conn)
 	resp, err := protoClient.Init(ctx, d.req)
 	if err != nil {
+		fmt.Println("Connecting to Constellation... Error in gRPC: ", err)
 		return fmt.Errorf("init call: %w", err)
 	}
 	d.resp = resp
