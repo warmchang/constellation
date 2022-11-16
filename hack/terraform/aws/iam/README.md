@@ -7,7 +7,7 @@ You can create the profiles with the following commands:
 ```sh
 mkdir constellation_aws_iam
 cd constellation_aws_iam
-curl --remote-name-all https://raw.githubusercontent.com/edgelesssys/constellation/main/hack/terraform/aws/iam/{main,output,variables}.tf
+curl --remote-name-all https://raw.githubusercontent.com/edgelesssys/constellation/main/hack/terraform/aws/iam/{main.tf,output.tf,variables.tf,.terraform.lock.hcl}
 terraform init
 terraform apply -auto-approve -var name_prefix=my_constellation
 ```
