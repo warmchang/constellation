@@ -358,7 +358,7 @@ func (c *JoinClient) getControlPlaneIPs() ([]string, error) {
 		}
 	}
 
-	c.log.With(zap.Strings("IPs", ips)).Infof("Received control plane endpoints")
+	c.log.With(zap.Strings("ips", ips)).Infof("Received control plane endpoints")
 	return ips, nil
 }
 
