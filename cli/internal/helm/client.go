@@ -9,22 +9,17 @@ package helm
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/edgelesssys/constellation/v2/internal/config"
 	"github.com/edgelesssys/constellation/v2/internal/constants"
 	"github.com/edgelesssys/constellation/v2/internal/deploy/helm"
-	"github.com/pkg/errors"
+	"github.com/edgelesssys/constellation/v2/internal/kubernetes/kubectl"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/cli"
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
-	"k8s.io/client-go/kubernetes/scheme"
 )
 
 const (
@@ -34,23 +29,31 @@ const (
 
 // Client handles interaction with helm.
 type Client struct {
-	config    *action.Configuration
-	crdClient *apiextensionsclient.Clientset
-	log       debugLog
+	config  *action.Configuration
+	kubectl *kubectl.Kubectl
+	log     debugLog
 }
 
 // NewClient returns a new initializes client for the namespace Client.
-func NewClient(kubeConfigPath, helmNamespace string, client *apiextensionsclient.Clientset, log debugLog) (*Client, error) {
+func NewClient(kubeConfigPath, helmNamespace string, log debugLog) (*Client, error) {
 	settings := cli.New()
 	settings.KubeConfig = kubeConfigPath // constants.AdminConfFilename
 
-	// TODO: Replace log.Printf with actual CLILogger during refactoring of upgrade cmd.
 	actionConfig := &action.Configuration{}
 	if err := actionConfig.Init(settings.RESTClientGetter(), helmNamespace, "secret", log.Debugf); err != nil {
 		return nil, fmt.Errorf("initializing config: %w", err)
 	}
 
-	return &Client{config: actionConfig, crdClient: client, log: log}, nil
+	kubeconfig, err := os.ReadFile("/home/xcv/repos/constellation-2/build/gcp/constellation-admin.conf")
+	if err != nil {
+		return nil, fmt.Errorf("reading gce config: %w", err)
+	}
+	client := kubectl.New()
+	if err := client.Initialize(kubeconfig); err != nil {
+		return nil, fmt.Errorf("initializing kubectl: %w", err)
+	}
+
+	return &Client{config: actionConfig, kubectl: client, log: log}, nil
 }
 
 // CurrentVersion returns the version of the currently installed helm release.
@@ -103,6 +106,14 @@ func (c *Client) Upgrade(ctx context.Context, config *config.Config) error {
 		return fmt.Errorf("loading constellation-services chart: %w", err)
 	}
 
+	crds, err := c.backupCRDs(ctx)
+	if err != nil {
+		return fmt.Errorf("backing up CRDs: %w", err)
+	}
+
+	if err := c.backupCRs(crds); err != nil {
+		return fmt.Errorf("backing up CRs: %w", err)
+	}
 	values, err := c.prepareValues(ciliumChart, ciliumReleaseName)
 	if err != nil {
 		return err
@@ -171,38 +182,6 @@ func (c *Client) GetValues(release string) (map[string]any, error) {
 	return values, nil
 }
 
-// ApplyCRD updates the given CRD by parsing it, querying it's version from the cluster and finally updating it.
-func (c *Client) ApplyCRD(ctx context.Context, rawCRD []byte) error {
-	crd, err := parseCRD(rawCRD)
-	if err != nil {
-		return fmt.Errorf("parsing crds: %w", err)
-	}
-
-	clusterCRD, err := c.crdClient.ApiextensionsV1().CustomResourceDefinitions().Get(ctx, crd.Name, metav1.GetOptions{})
-	if err != nil {
-		return fmt.Errorf("getting crd: %w", err)
-	}
-	crd.ResourceVersion = clusterCRD.ResourceVersion
-	_, err = c.crdClient.ApiextensionsV1().CustomResourceDefinitions().Update(ctx, crd, metav1.UpdateOptions{})
-	return err
-}
-
-// parseCRD takes a byte slice of data and tries to create a CustomResourceDefinition object from it.
-func parseCRD(crdString []byte) (*v1.CustomResourceDefinition, error) {
-	sch := runtime.NewScheme()
-	_ = scheme.AddToScheme(sch)
-	_ = v1.AddToScheme(sch)
-	obj, groupVersionKind, err := serializer.NewCodecFactory(sch).UniversalDeserializer().Decode(crdString, nil, nil)
-	if err != nil {
-		return nil, fmt.Errorf("decoding crd: %w", err)
-	}
-	if groupVersionKind.Kind == "CustomResourceDefinition" {
-		return obj.(*v1.CustomResourceDefinition), nil
-	}
-
-	return nil, errors.New("parsed []byte, but did not find a CRD")
-}
-
 // updateOperatorCRDs walks through the dependencies of the given chart and applies
 // the files in the dependencie's 'crds' folder.
 // This function is NOT recursive!
@@ -211,7 +190,7 @@ func (c *Client) updateOperatorCRDs(ctx context.Context, chart *chart.Chart) err
 		for _, crdFile := range dep.Files {
 			if strings.HasPrefix(crdFile.Name, "crds/") {
 				c.log.Debugf("updating crd: %s", crdFile.Name)
-				err := c.ApplyCRD(ctx, crdFile.Data)
+				err := c.kubectl.ApplyCRD(ctx, crdFile.Data)
 				if err != nil {
 					return err
 				}

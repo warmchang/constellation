@@ -1,0 +1,205 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: kube-system/node-maintenance-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: "2022-12-08T07:33:21Z"
+  generation: 2
+  labels:
+    node-maintenance-operator: ""
+  managedFields:
+  - apiVersion: apiextensions.k8s.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:cert-manager.io/inject-ca-from: {}
+          f:controller-gen.kubebuilder.io/version: {}
+        f:labels:
+          .: {}
+          f:node-maintenance-operator: {}
+      f:spec:
+        f:conversion:
+          .: {}
+          f:strategy: {}
+          f:webhook:
+            .: {}
+            f:clientConfig:
+              .: {}
+              f:service:
+                .: {}
+                f:name: {}
+                f:namespace: {}
+                f:path: {}
+                f:port: {}
+            f:conversionReviewVersions: {}
+        f:group: {}
+        f:names:
+          f:kind: {}
+          f:listKind: {}
+          f:plural: {}
+          f:shortNames: {}
+          f:singular: {}
+        f:scope: {}
+        f:versions: {}
+    manager: bootstrapper
+    operation: Update
+    time: "2022-12-08T07:33:21Z"
+  - apiVersion: apiextensions.k8s.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        f:acceptedNames:
+          f:kind: {}
+          f:listKind: {}
+          f:plural: {}
+          f:shortNames: {}
+          f:singular: {}
+        f:conditions:
+          k:{"type":"Established"}:
+            .: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"NamesAccepted"}:
+            .: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+    manager: kube-apiserver
+    operation: Update
+    subresource: status
+    time: "2022-12-08T07:33:21Z"
+  - apiVersion: apiextensions.k8s.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:spec:
+        f:conversion:
+          f:webhook:
+            f:clientConfig:
+              f:caBundle: {}
+    manager: cainjector
+    operation: Update
+    time: "2022-12-08T07:33:22Z"
+  name: nodemaintenances.nodemaintenance.medik8s.io
+  resourceVersion: "1429"
+  uid: 1b2ad4f1-9892-46f3-9915-19753f4e1bdf
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURRakNDQWlxZ0F3SUJBZ0lSQUx0WWlRME42M0hHNWxXa2E2bzdrUjB3RFFZSktvWklodmNOQVFFTEJRQXcKQURBZUZ3MHlNakV5TURnd056TXpNakphRncweU16QXpNRGd3TnpNek1qSmFNQUF3Z2dFaU1BMEdDU3FHU0liMwpEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUM5c3JscVZrdXhUZW8vQ1phelA1MVkwQStxVU1lMW1sT3hVR2VLCnR1R0FTcWlvVjRXRlY1TjBXL0NjaG1JSVJ5WmVpRW5tM3lJelN2UmYyd1ZXSDl2amJhZDZLNVFKSFkvQXUvSXEKQndHb0Znb3JRU1FlQnBUdC9rVDdtZ3BzMnBMYk5tdE9lUUhVZy92eUFHc091Q3hNU2Y2a0tuaW1aU2FpYVlvRworaEozQ3MrNkNPYXVlQkRtRHN3ckFVTUdoQnB3VVR6WGdYMFZWc0tyWVltcXllWEkrZk0rKzhPblFKNUNpYVdqClpxRW5sd1RDN1VmL2F0WEFHUHpLc3dPZCtiQmd3NGJZVXM2OEZLdTFjMkFETGtRMU9XUnRkcmxhZlpSZzF4ZmIKaXR1UDlYaVozUUJLZHM2cWJId2RLMGpaSmFXS3ROQXFvbE5mOFlEZkNmYW1IN0hkQWdNQkFBR2pnYll3Z2JNdwpEZ1lEVlIwUEFRSC9CQVFEQWdXZ01Bd0dBMVVkRXdFQi93UUNNQUF3Z1pJR0ExVWRFUUVCL3dTQmh6Q0JoSUk1CmJtOWtaUzF0WVdsdWRHVnVZVzVqWlMxdmNHVnlZWFJ2Y2kxM1pXSm9iMjlyTFhObGNuWnBZMlV1YTNWaVpTMXoKZVhOMFpXMHVjM1pqZ2tkdWIyUmxMVzFoYVc1MFpXNWhibU5sTFc5d1pYSmhkRzl5TFhkbFltaHZiMnN0YzJWeQpkbWxqWlM1cmRXSmxMWE41YzNSbGJTNXpkbU11WTJ4MWMzUmxjaTVzYjJOaGJEQU5CZ2txaGtpRzl3MEJBUXNGCkFBT0NBUUVBWEVRMWlHMHRhTFRmQWZPUERJREJqYjk1U0dqdDlUbkFGVTBXM2lSaElucUUzekhTdk8zWjVvdE0KTmpjSmtyK25vbVdFQ2VZcisvYzhMSzFrVXBSKzdlV3FVaXlMSmNnYU1EeE4vZW8zNzVVem85TTJlZElRSEZwTQoxNmE2T3FNekYvSWIzTjQ3T0ZBaG1ZUlVNcHNBT0d4eHJpL3VudW9aK3k3eFUrazhVakdTaDRiNVNVRHdieXFtCmFFS2gvK2JCU0p5TDNzMXNTT0EwZk9uY09CUVFVRS8zZ2Y4MHh2QXVEekZaMlp5eHNBMzg5TCtET1l5TWNJZXEKU3RiR1pmZDJDYUdwblN5SUd6NngvbUxET2hlOVhqa1IyZ2g4dkwyNExYWnE4NHJXSWJ4a21uMHdIc0ZDeFg1RgpxMmZXbng1cWRMZmNncjA1MHN3M2o3VGZDOHhteXc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+        service:
+          name: node-maintenance-operator-webhook-service
+          namespace: kube-system
+          path: /convert
+          port: 443
+      conversionReviewVersions:
+      - v1
+  group: nodemaintenance.medik8s.io
+  names:
+    kind: NodeMaintenance
+    listKind: NodeMaintenanceList
+    plural: nodemaintenances
+    shortNames:
+    - nm
+    singular: nodemaintenance
+  scope: Cluster
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: NodeMaintenance is the Schema for the nodemaintenances API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: NodeMaintenanceSpec defines the desired state of NodeMaintenance
+            properties:
+              nodeName:
+                description: Node name to apply maintanance on/off
+                type: string
+              reason:
+                description: Reason for maintanance
+                type: string
+            required:
+            - nodeName
+            type: object
+          status:
+            description: NodeMaintenanceStatus defines the observed state of NodeMaintenance
+            properties:
+              drainProgress:
+                description: Percentage completion of draining the node
+                type: integer
+              errorOnLeaseCount:
+                description: Consecutive number of errors upon obtaining a lease
+                type: integer
+              evictionPods:
+                description: EvictionPods is the total number of pods up for eviction
+                  from the start
+                type: integer
+              lastError:
+                description: LastError represents the latest error if any in the latest
+                  reconciliation
+                type: string
+              lastUpdate:
+                description: The last time the status has been updated
+                format: date-time
+                type: string
+              pendingPods:
+                description: PendingPods is a list of pending pods for eviction
+                items:
+                  type: string
+                type: array
+              phase:
+                description: Phase is the represtation of the maintenance progress
+                  (Running,Succeeded,Failed)
+                type: string
+              totalpods:
+                description: TotalPods is the total number of all pods on the node
+                  from the start
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: NodeMaintenance
+    listKind: NodeMaintenanceList
+    plural: nodemaintenances
+    shortNames:
+    - nm
+    singular: nodemaintenance
+  conditions:
+  - lastTransitionTime: "2022-12-08T07:33:21Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: "2022-12-08T07:33:21Z"
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1beta1

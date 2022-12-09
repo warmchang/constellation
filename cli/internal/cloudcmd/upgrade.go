@@ -18,7 +18,6 @@ import (
 	"github.com/edgelesssys/constellation/v2/internal/config"
 	"github.com/edgelesssys/constellation/v2/internal/constants"
 	corev1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -38,7 +37,7 @@ type Upgrader struct {
 
 // NewUpgrader returns a new Upgrader.
 func NewUpgrader(outWriter io.Writer, log debugLog) (*Upgrader, error) {
-	kubeConfig, err := clientcmd.BuildConfigFromFlags("", constants.AdminConfFilename)
+	kubeConfig, err := clientcmd.BuildConfigFromFlags("", "/home/xcv/repos/constellation-2/build/gcp/constellation-admin.conf")
 	if err != nil {
 		return nil, fmt.Errorf("building kubernetes config: %w", err)
 	}
@@ -54,12 +53,7 @@ func NewUpgrader(outWriter io.Writer, log debugLog) (*Upgrader, error) {
 		return nil, fmt.Errorf("setting up custom resource client: %w", err)
 	}
 
-	client, err := apiextensionsclient.NewForConfig(kubeConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	helmClient, err := helm.NewClient(constants.AdminConfFilename, constants.HelmNamespace, client, log)
+	helmClient, err := helm.NewClient("/home/xcv/repos/constellation-2/build/gcp/constellation-admin.conf", constants.HelmNamespace, log)
 	if err != nil {
 		return nil, fmt.Errorf("setting up helm client: %w", err)
 	}
