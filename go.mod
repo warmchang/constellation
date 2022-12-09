@@ -3,31 +3,31 @@ module github.com/edgelesssys/constellation/v2
 go 1.19
 
 replace (
-	k8s.io/api v0.0.0 => k8s.io/api v0.25.3
-	k8s.io/apiextensions-apiserver v0.0.0 => k8s.io/apiextensions-apiserver v0.25.3
-	k8s.io/apimachinery v0.0.0 => k8s.io/apimachinery v0.25.3
-	k8s.io/apiserver v0.0.0 => k8s.io/apiserver v0.25.3
-	k8s.io/cli-runtime v0.0.0 => k8s.io/cli-runtime v0.25.3
-	k8s.io/client-go v0.0.0 => k8s.io/client-go v0.25.3
-	k8s.io/cloud-provider v0.0.0 => k8s.io/cloud-provider v0.25.3
-	k8s.io/cluster-bootstrap v0.0.0 => k8s.io/cluster-bootstrap v0.25.3
-	k8s.io/code-generator v0.0.0 => k8s.io/code-generator v0.25.3
-	k8s.io/component-base v0.0.0 => k8s.io/component-base v0.25.3
-	k8s.io/component-helpers v0.0.0 => k8s.io/component-helpers v0.25.3
-	k8s.io/controller-manager v0.0.0 => k8s.io/controller-manager v0.25.3
-	k8s.io/cri-api v0.0.0 => k8s.io/cri-api v0.25.3
-	k8s.io/csi-translation-lib v0.0.0 => k8s.io/csi-translation-lib v0.25.3
-	k8s.io/kube-aggregator v0.0.0 => k8s.io/kube-aggregator v0.25.3
-	k8s.io/kube-controller-manager v0.0.0 => k8s.io/kube-controller-manager v0.25.3
-	k8s.io/kube-proxy v0.0.0 => k8s.io/kube-proxy v0.25.3
-	k8s.io/kube-scheduler v0.0.0 => k8s.io/kube-scheduler v0.25.3
-	k8s.io/kubectl v0.0.0 => k8s.io/kubectl v0.25.3
-	k8s.io/kubelet v0.0.0 => k8s.io/kubelet v0.25.3
-	k8s.io/legacy-cloud-providers v0.0.0 => k8s.io/legacy-cloud-providers v0.25.3
-	k8s.io/metrics v0.0.0 => k8s.io/metrics v0.25.3
-	k8s.io/mount-utils v0.0.0 => k8s.io/mount-utils v0.25.3
-	k8s.io/pod-security-admission v0.0.0 => k8s.io/pod-security-admission v0.25.3
-	k8s.io/sample-apiserver v0.0.0 => k8s.io/sample-apiserver v0.25.3
+	k8s.io/api v0.0.0 => k8s.io/api v0.26.0
+	k8s.io/apiextensions-apiserver v0.0.0 => k8s.io/apiextensions-apiserver v0.26.0
+	k8s.io/apimachinery v0.0.0 => k8s.io/apimachinery v0.26.0
+	k8s.io/apiserver v0.0.0 => k8s.io/apiserver v0.26.0
+	k8s.io/cli-runtime v0.0.0 => k8s.io/cli-runtime v0.26.0
+	k8s.io/client-go v0.0.0 => k8s.io/client-go v0.26.0
+	k8s.io/cloud-provider v0.0.0 => k8s.io/cloud-provider v0.26.0
+	k8s.io/cluster-bootstrap v0.0.0 => k8s.io/cluster-bootstrap v0.26.0
+	k8s.io/code-generator v0.0.0 => k8s.io/code-generator v0.26.0
+	k8s.io/component-base v0.0.0 => k8s.io/component-base v0.26.0
+	k8s.io/component-helpers v0.0.0 => k8s.io/component-helpers v0.26.0
+	k8s.io/controller-manager v0.0.0 => k8s.io/controller-manager v0.26.0
+	k8s.io/cri-api v0.0.0 => k8s.io/cri-api v0.26.0
+	k8s.io/csi-translation-lib v0.0.0 => k8s.io/csi-translation-lib v0.26.0
+	k8s.io/kube-aggregator v0.0.0 => k8s.io/kube-aggregator v0.26.0
+	k8s.io/kube-controller-manager v0.0.0 => k8s.io/kube-controller-manager v0.26.0
+	k8s.io/kube-proxy v0.0.0 => k8s.io/kube-proxy v0.26.0
+	k8s.io/kube-scheduler v0.0.0 => k8s.io/kube-scheduler v0.26.0
+	k8s.io/kubectl v0.0.0 => k8s.io/kubectl v0.26.0
+	k8s.io/kubelet v0.0.0 => k8s.io/kubelet v0.26.0
+	k8s.io/legacy-cloud-providers v0.0.0 => k8s.io/legacy-cloud-providers v0.26.0
+	k8s.io/metrics v0.0.0 => k8s.io/metrics v0.26.0
+	k8s.io/mount-utils v0.0.0 => k8s.io/mount-utils v0.26.0
+	k8s.io/pod-security-admission v0.0.0 => k8s.io/pod-security-admission v0.26.0
+	k8s.io/sample-apiserver v0.0.0 => k8s.io/sample-apiserver v0.26.0
 )
 
 replace github.com/google/go-tpm-tools => github.com/daniel-weisse/go-tpm-tools v0.0.0-20221111090237-e51fbcb20b1f
@@ -109,8 +109,6 @@ require (
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 )
 
-require github.com/blang/semver/v4 v4.0.0 // indirect
-
 require (
 	cloud.google.com/go v0.107.0 // indirect
 	cloud.google.com/go/iam v0.8.0 // indirect
@@ -147,6 +145,7 @@ require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
