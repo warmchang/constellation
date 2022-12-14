@@ -6,6 +6,29 @@ on:
       imageTag:
         description: "Container image tag."
         required: false
+      ref:
+        type: string
+        description: "Git ref to checkout"
+        required: false
+      release:
+        type: boolean
+        description: "Is this a release build?"
+        required: false
+        default: false
+  workflow_call:
+    inputs:
+      imageTag:
+        type: string
+        description: "Container image tag"
+        required: true
+      ref:
+        type: string
+        description: "Git ref to checkout"
+        required: false
+      release:
+        type: boolean
+        description: "Is this a release build?"
+        required: true
 
 jobs:
   build-operator-manual:
@@ -18,7 +41,7 @@ jobs:
         id: checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Setup Go environment
         uses: actions/setup-go@d0a58c1c4d2b25278816e339b944508c875f3613 # v3.4.0
@@ -32,6 +55,6 @@ jobs:
           sourceDir: operators/constellation-node-operator
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           pushTag: ${{ inputs.imageTag }}
-          cosignPublicKey: ${{ startsWith(github.ref, 'refs/heads/release/v') && secrets.COSIGN_PUBLIC_KEY || secrets.COSIGN_DEV_PUBLIC_KEY }}
-          cosignPrivateKey: ${{ startsWith(github.ref, 'refs/heads/release/v') && secrets.COSIGN_PRIVATE_KEY || secrets.COSIGN_DEV_PRIVATE_KEY }}
-          cosignPassword: ${{ startsWith(github.ref, 'refs/heads/release/v') && secrets.COSIGN_PASSWORD || secrets.COSIGN_DEV_PASSWORD }}
+          cosignPublicKey: ${{ inputs.release && secrets.COSIGN_PUBLIC_KEY || secrets.COSIGN_DEV_PUBLIC_KEY }}
+          cosignPrivateKey: ${{ inputs.release && secrets.COSIGN_PRIVATE_KEY || secrets.COSIGN_DEV_PRIVATE_KEY }}
+          cosignPassword: ${{ inputs.release && secrets.COSIGN_PASSWORD || secrets.COSIGN_DEV_PASSWORD }}

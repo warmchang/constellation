@@ -20,6 +20,29 @@ on:
           - "debug"
           # TODO: implement console access enabled image
           # - "console"
+      ref:
+        type: string
+        description: "Git ref to checkout"
+        required: false
+  workflow_call:
+    inputs:
+      imageVersion:
+        description: "Semantic version including patch e.g. v<major>.<minor>.<patch> (only used for releases)"
+        required: false
+        type: string
+      isRelease:
+        description: 'Is this a release? (sets "ref" to special value "-")'
+        type: boolean
+        required: false
+        default: false
+      stream:
+        description: "Image stream / type. (Use 'stable' for releases, 'nightly' for regular non-release images and 'debug' for debug builds)"
+        type: string
+        required: true
+      ref:
+        type: string
+        description: "Git ref to checkout"
+        required: false
 
 jobs:
   build-dependencies:
@@ -35,7 +58,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Build bootstrapper
         if: inputs.stream != 'debug'
@@ -87,7 +110,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Determine version
         id: version
@@ -201,7 +224,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Download build dependencies
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7 # tag=v3.0.1
@@ -311,7 +334,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Download OS image artifact
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7 # tag=v3.0.1
@@ -498,7 +521,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Login to AWS
         uses: aws-actions/configure-aws-credentials@67fbcbb121271f7775d2e7715933280b06314838 # tag=v1.7.0
@@ -720,7 +743,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Setup Go environment
         uses: actions/setup-go@d0a58c1c4d2b25278816e339b944508c875f3613 # v3.4.0
