@@ -22,7 +22,7 @@ runs:
     - name: Get Constellation cluster UID
       shell: bash
       run: |
-        CONSTELLATION_UID=$(jq -r ".clusterID" constellation-id.json)
+        CONSTELLATION_UID=$(jq -r ".uid" constellation-id.json)
         echo "CONSTELLATION_UID=$CONSTELLATION_UID" >> $GITHUB_ENV
     # Restart worker node machine and wait for it to rejoin the cluster
     - name: Restart worker node on GCP
