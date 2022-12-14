@@ -23,6 +23,8 @@ runs:
       shell: bash
       run: |
         CONSTELLATION_UID=$(yq -r ".uid" constellation-id.json)
+        echo $(yq -r ".uid" constellation-id.json)
+        echo $CONSTELLATION_UID
         echo "CONSTELLATION_UID=$CONSTELLATION_UID" >> $GITHUB_ENV
     # Restart worker node machine and wait for it to rejoin the cluster
     - name: Restart worker node on GCP
