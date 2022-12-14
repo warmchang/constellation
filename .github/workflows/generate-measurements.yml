@@ -15,6 +15,28 @@ on:
         description: "Sign and upload the measurements?"
         type: boolean
         required: true
+      ref:
+        type: string
+        description: "Git ref to checkout"
+        required: false
+  workflow_call:
+    inputs:
+      osImage:
+        description: "Full name of OS image (CSP independent image version UID)."
+        type: string
+        required: true
+      isDebugImage:
+        description: "Is OS image a debug image?"
+        type: boolean
+        required: true
+      signMeasurements:
+        description: "Sign and upload the measurements?"
+        type: boolean
+        required: true
+      ref:
+        type: string
+        description: "Git ref to checkout"
+        required: false
 
 jobs:
   calculate-measurements-on-csp:
@@ -40,7 +62,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Extract ref, stream and version
         id: extract
@@ -195,7 +217,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.ref || github.head_ref }}
 
       - name: Setup Go environment
         uses: actions/setup-go@d0a58c1c4d2b25278816e339b944508c875f3613 # v3.4.0
