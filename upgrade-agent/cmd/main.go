@@ -9,6 +9,7 @@ package main
 import (
 	"flag"
 
+	"github.com/edgelesssys/constellation/v2/internal/constants"
 	"github.com/edgelesssys/constellation/v2/internal/file"
 	"github.com/edgelesssys/constellation/v2/internal/logger"
 	upgradeagent "github.com/edgelesssys/constellation/v2/upgrade-agent"
@@ -18,7 +19,6 @@ import (
 
 const (
 	protocol = "unix"
-	sockAddr = "/tmp/echo.sock"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 		log.With(zap.Error(err)).Fatalf("Failed to create update server")
 	}
 
-	err = server.Run(protocol, sockAddr)
+	err = server.Run(protocol, constants.UpgradeAgentSocketPath)
 	if err != nil {
 		log.With(zap.Error(err)).Fatalf("Failed to start update server")
 	}
