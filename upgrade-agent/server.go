@@ -58,11 +58,12 @@ func (s *Server) Run(protocol string, sockAddr string) error {
 	upgradeproto.RegisterUpdateServer(grpcServer, s)
 
 	cleanup := func() error {
-		if _, err := os.Stat(sockAddr); err == nil {
-			if err := os.RemoveAll(sockAddr); err != nil {
-				return err
-			}
-		}
+	err := os.RemoveAll(sockAddr)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil
+	} else if err != nil {
+		return err
+	}
 		return nil
 	}
 	if err := cleanup(); err != nil {
