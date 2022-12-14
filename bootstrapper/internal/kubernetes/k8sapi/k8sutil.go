@@ -31,7 +31,7 @@ import (
 
 	"github.com/edgelesssys/constellation/v2/internal/crypto"
 	"github.com/edgelesssys/constellation/v2/internal/file"
-	_installer "github.com/edgelesssys/constellation/v2/internal/installer"
+	"github.com/edgelesssys/constellation/v2/internal/installer"
 	"github.com/edgelesssys/constellation/v2/internal/logger"
 	"github.com/edgelesssys/constellation/v2/internal/versions"
 	"github.com/spf13/afero"
@@ -54,7 +54,7 @@ type Client interface {
 	ListAllNamespaces(ctx context.Context) (*corev1.NamespaceList, error)
 }
 
-type installer interface {
+type componensInstaller interface {
 	Install(
 		ctx context.Context, kubernetesComponent versions.ComponentVersion,
 	) error
@@ -62,14 +62,14 @@ type installer interface {
 
 // KubernetesUtil provides low level management of the kubernetes cluster.
 type KubernetesUtil struct {
-	inst installer
+	inst componensInstaller
 	file file.Handler
 }
 
 // NewKubernetesUtil creates a new KubernetesUtil.
 func NewKubernetesUtil() *KubernetesUtil {
 	return &KubernetesUtil{
-		inst: _installer.NewOSInstaller(),
+		inst: installer.NewOSInstaller(),
 		file: file.NewHandler(afero.NewOsFs()),
 	}
 }
