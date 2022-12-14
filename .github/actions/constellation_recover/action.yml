@@ -22,25 +22,25 @@ runs:
     - name: Get Constellation cluster UID
       shell: bash
       run: |
-        CONSTELLATION_UID=$(jq -r ".uid" constellation-id.json)
+        CONSTELLATION_UID=$(yq -r ".uid" constellation-id.json)
         echo "CONSTELLATION_UID=$CONSTELLATION_UID" >> $GITHUB_ENV
     # Restart worker node machine and wait for it to rejoin the cluster
     - name: Restart worker node on GCP
       if: ${{ inputs.cloudProvider == 'gcp' }}
       shell: bash
       run: |
-        export WORKER_NODE_INSTANCE=$(gcloud compute instances list --project=constellation-331613 --filter="labels.constellation-role=worker AND labels.constellation-uid=${CONSTELLATION_UID}" --format="json" | jq '.[0].name' -r)
-        gcloud compute instances reset $WORKER_NODE_INSTANCE --project=constellation-331613
+        export WORKER_NODE_INSTANCE=$(gcloud compute instances list --project=${GCP_PROJECT} --filter="labels.constellation-role=worker AND labels.constellation-uid=${CONSTELLATION_UID}" --format="json" | jq '.[0].name' -r)
+        gcloud compute instances reset $WORKER_NODE_INSTANCE --project=${GCP_PROJECT}
         kubectl wait --for=condition=ready --all nodes --timeout=10m
     # Restart control plane machine
     - name: Restart control plane on GCP
       if: ${{ inputs.cloudProvider == 'gcp' }}
       shell: bash
       run: |
-        CONTROL_PLANE_INSTANCES=$(gcloud compute instances list --project=constellation-331613 --filter="labels.constellation-role=control-plane AND labels.constellation-uid=${CONSTELLATION_UID}" --format="json" | jq '.[].name' -r)
+        CONTROL_PLANE_INSTANCES=$(gcloud compute instances list --project=${GCP_PROJECT} --filter="labels.constellation-role=control-plane AND labels.constellation-uid=${CONSTELLATION_UID}" --format="json" | jq '.[].name' -r)
         for instance in ${CONTROL_PLANE_INSTANCES}
         do
-        gcloud compute instances reset ${instance} --project=constellation-331613
+        gcloud compute instances reset ${instance} --project=${GCP_PROJECT}
         done
         sleep 60
     # Recover the control plane
