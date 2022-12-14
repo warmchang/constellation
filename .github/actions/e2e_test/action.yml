@@ -160,6 +160,15 @@ runs:
         azureUserAssignedIdentity: ${{ inputs.azureUserAssignedIdentity }}
         azureResourceGroup: ${{ inputs.azureResourceGroup }}
 
+    - name: Recover cluster
+      id: constellation-recover
+      uses: ./.github/actions/constellation_recover
+      with:
+        cloudProvider: ${{ inputs.cloudProvider }}
+        gcpProject: ${{ inputs.gcpProject }}
+        kubeconfig: ${{ steps.constellation-create.outputs.kubeconfig }}
+        masterSecret: ${{ steps.constellation-create.outputs.masterSecret }}
+
     #
     # Test payloads
     #
