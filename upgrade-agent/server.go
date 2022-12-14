@@ -21,6 +21,8 @@ import (
 	"github.com/edgelesssys/constellation/v2/internal/versions"
 	"github.com/edgelesssys/constellation/v2/upgrade-agent/upgradeproto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var versionRegexp = regexp.MustCompile(`^v\d{1}\.\d{1,2}\.\d{1,2}$`)
@@ -91,28 +93,8 @@ func (s *Server) Stop() {
 // ExecuteUpdate installs & verifies the provided kubeadm, then executes `kubeadm upgrade plan` & `kubeadm upgrade apply {wanted_Kubernetes_Version}` to upgrade to the specified version.
 func (s *Server) ExecuteUpdate(ctx context.Context, updateRequest *upgradeproto.ExecuteUpdateRequest) (*upgradeproto.ExecuteUpdateResponse, error) {
 	s.log.Infof("Upgrade to Kubernetes version started: %s", updateRequest.WantedKubernetesVersion)
+
 	installer := installer.NewOSInstaller()
-	if err := prepareUpdate(ctx, installer, updateRequest); err != nil {
-		return &upgradeproto.ExecuteUpdateResponse{}, err
-	}
-
-	upgradeCmd := exec.CommandContext(ctx, "kubeadm", "upgrade", "plan")
-	if err := upgradeCmd.Run(); err != nil {
-		return &upgradeproto.ExecuteUpdateResponse{}, err
-	}
-
-	applyCmd := exec.CommandContext(ctx, "kubeadm", "upgrade", "apply", updateRequest.WantedKubernetesVersion)
-	if err := applyCmd.Run(); err != nil {
-		return &upgradeproto.ExecuteUpdateResponse{}, err
-	}
-
-	s.log.Infof("Upgrade to Kubernetes version succeeded: %s", updateRequest.WantedKubernetesVersion)
-	return &upgradeproto.ExecuteUpdateResponse{}, nil
-}
-
-// prepareUpdate downloads & installs the specified kubeadm version and verifies the desired Kubernetes version.
-func prepareUpdate(ctx context.Context, installer osInstaller, updateRequest *upgradeproto.ExecuteUpdateRequest) error {
-	// download & install the kubeadm binary
 	err := installer.Install(ctx, versions.ComponentVersion{
 		URL:         updateRequest.KubeadmUrl,
 		Hash:        updateRequest.KubeadmHash,
@@ -120,15 +102,26 @@ func prepareUpdate(ctx context.Context, installer osInstaller, updateRequest *up
 		Extract:     false,
 	})
 	if err != nil {
-		return err
+		return &upgradeproto.ExecuteUpdateResponse{}, status.Errorf(codes.Internal, "unable to retrieve the specified kubeadm binary: %s", err)
 	}
 
 	err = verifyVersion(updateRequest.WantedKubernetesVersion)
 	if err != nil {
-		return err
+		return &upgradeproto.ExecuteUpdateResponse{}, status.Errorf(codes.Internal, "unable to verify the Kubernetes version %s: %s", updateRequest.WantedKubernetesVersion, err)
 	}
 
-	return nil
+	upgradeCmd := exec.CommandContext(ctx, "kubeadm", "upgrade", "plan")
+	if err := upgradeCmd.Run(); err != nil {
+		return &upgradeproto.ExecuteUpdateResponse{}, status.Errorf(codes.Internal, "unable to execute kubeadm upgrade plan: %s", err)
+	}
+
+	applyCmd := exec.CommandContext(ctx, "kubeadm", "upgrade", "apply", updateRequest.WantedKubernetesVersion)
+	if err := applyCmd.Run(); err != nil {
+		return &upgradeproto.ExecuteUpdateResponse{}, status.Errorf(codes.Internal, "unable to execute kubeadm upgrade apply: %s", err)
+	}
+
+	s.log.Infof("Upgrade to Kubernetes version succeeded: %s", updateRequest.WantedKubernetesVersion)
+	return &upgradeproto.ExecuteUpdateResponse{}, nil
 }
 
 // verifyVersion verifies the provided Kubernetes version.
@@ -137,11 +130,6 @@ func verifyVersion(version string) error {
 		return fmt.Errorf("invalid kubernetes version: %s", version)
 	}
 	return nil
-}
-
-type osInstaller interface {
-	// Install downloads, installs and verifies the kubernetes component.
-	Install(ctx context.Context, kubernetesComponent versions.ComponentVersion) error
 }
 
 type serveStopper interface {
