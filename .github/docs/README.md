@@ -9,7 +9,8 @@ gh workflow run e2e-test-manual.yml \
     --ref feat/e2e_pipeline \                       # On your specific branch!
     -F cloudProvider=gcp \       # With your ...
     -F controlNodesCount=1 -F workerNodesCount=2 \  # ... settings
-    -F machineType=n2d-standard-4
+    -F machineType=n2d-standard-4 \
+    -F test=nop
 ```
 
 ### E2E Test Suites
@@ -121,31 +122,31 @@ Non debug images built from main follow the __Branch__ image naming scheme.
 
 ### GCP
 
-Type | Image Family | Image Name
--|-|-
-Release | constellation | constellation-v\<major\>-\<minor\>-\<patch\>
-Debug | constellation-debug-v\<major\>-\<minor\>-\<patch\> | constellation-\<commit-timestamp\>
-Branch | constellation-\<branch-name\> | constellation-\<commit-timestamp\>
+| Type    | Image Family                                       | Image Name                                   |
+| ------- | -------------------------------------------------- | -------------------------------------------- |
+| Release | constellation                                      | constellation-v\<major\>-\<minor\>-\<patch\> |
+| Debug   | constellation-debug-v\<major\>-\<minor\>-\<patch\> | constellation-\<commit-timestamp\>           |
+| Branch  | constellation-\<branch-name\>                      | constellation-\<commit-timestamp\>           |
 
 Example:
-Type | Image Family | Image Name | List command
--|-|-|-
-Release | constellation | constellation-v1-5-0 | `gcloud compute images list --filter="family~'^constellation$'" --sort-by=creationTimestamp --project constellation-images --uri \| sed 's#https://www.googleapis.com/compute/v1/##'`
-Debug | constellation-debug-v1-5-0 | constellation-20220912123456 | `gcloud compute images list --filter="family~'constellation-debug-v.+'" --sort-by=creationTimestamp --project constellation-images --uri \| sed 's#https://www.googleapis.com/compute/v1/##'`
-Branch | constellation-ref-cli | constellation-20220912123456 | `gcloud compute images list --filter="family~'constellation-$(go run $(git rev-parse --show-toplevel)/hack/pseudo-version/pseudo-version.go -print-branch)'" --sort-by=creationTimestamp --project constellation-images --uri \| sed 's#https://www.googleapis.com/compute/v1/##'`
+| Type    | Image Family               | Image Name                   | List command                                                                                                                                                                                                                                                                       |
+| ------- | -------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Release | constellation              | constellation-v1-5-0         | `gcloud compute images list --filter="family~'^constellation$'" --sort-by=creationTimestamp --project constellation-images --uri \| sed 's#https://www.googleapis.com/compute/v1/##'`                                                                                              |
+| Debug   | constellation-debug-v1-5-0 | constellation-20220912123456 | `gcloud compute images list --filter="family~'constellation-debug-v.+'" --sort-by=creationTimestamp --project constellation-images --uri \| sed 's#https://www.googleapis.com/compute/v1/##'`                                                                                      |
+| Branch  | constellation-ref-cli      | constellation-20220912123456 | `gcloud compute images list --filter="family~'constellation-$(go run $(git rev-parse --show-toplevel)/hack/pseudo-version/pseudo-version.go -print-branch)'" --sort-by=creationTimestamp --project constellation-images --uri \| sed 's#https://www.googleapis.com/compute/v1/##'` |
 
 ### Azure
 
-Type | Gallery | Image Definition | Image Version
--|-|-|-
-Release | Constellation | constellation | \<major\>.\<minor\>.\<patch\>
-Debug | Constellation_Debug | v\<major\>.\<minor\>.\<patch\> | \<commit-timestamp\>
-Branch | Constellation_Testing | \<branch-name\> | \<commit-timestamp\>
+| Type    | Gallery               | Image Definition               | Image Version                 |
+| ------- | --------------------- | ------------------------------ | ----------------------------- |
+| Release | Constellation         | constellation                  | \<major\>.\<minor\>.\<patch\> |
+| Debug   | Constellation_Debug   | v\<major\>.\<minor\>.\<patch\> | \<commit-timestamp\>          |
+| Branch  | Constellation_Testing | \<branch-name\>                | \<commit-timestamp\>          |
 
 Example:
 
-Type | Gallery | Image Definition | Image Version | List command | Community list command
--|-|-|-|-|-
-Release | Constellation | constellation | 1.5.0 | `az sig image-version list --resource-group constellation-images --gallery-name Constellation_CVM --gallery-image-definition constellation --query "sort_by([], &publishingProfile.publishedDate)[].id" -o table` | `az sig image-version list-community --public-gallery-name ConstellationCVM-b3782fa0-0df7-4f2f-963e-fc7fc42663df --gallery-image-definition constellation --location northeurope`
-Debug | Constellation_Debug | v1.5.0 | 2022.0912.123456 | `az sig image-version list --resource-group constellation-images --gallery-name Constellation_Debug_CVM --gallery-image-definition v1.5.0 --query "sort_by([], &publishingProfile.publishedDate)[].id" -o table` | `az sig image-version list-community --public-gallery-name ConstellationCVM-d1905bb0-a66c-497e-a9e6-4410ca7e3701 --gallery-image-definition v1.5.0 --location northeurope`
-Branch | Constellation_Testing | ref-cli | 2022.0912.123456 | `az sig image-version list --resource-group constellation-images --gallery-name Constellation_Testing_CVM --gallery-image-definition $(go run $(git rev-parse --show-toplevel)/hack/pseudo-version/pseudo-version.go -print-branch) --query "sort_by([], &publishingProfile.publishedDate)[].id" -o table` | `az sig image-version list-community --public-gallery-name ConstellationCVM-d1905bb0-a66c-497e-a9e6-4410ca7e3701 --gallery-image-definition $(go run $(git rev-parse --show-toplevel)/hack/pseudo-version/pseudo-version.go -print-branch) --location northeurope`
+| Type    | Gallery               | Image Definition | Image Version    | List command                                                                                                                                                                                                                                                                                               | Community list command                                                                                                                                                                                                                                             |
+| ------- | --------------------- | ---------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Release | Constellation         | constellation    | 1.5.0            | `az sig image-version list --resource-group constellation-images --gallery-name Constellation_CVM --gallery-image-definition constellation --query "sort_by([], &publishingProfile.publishedDate)[].id" -o table`                                                                                          | `az sig image-version list-community --public-gallery-name ConstellationCVM-b3782fa0-0df7-4f2f-963e-fc7fc42663df --gallery-image-definition constellation --location northeurope`                                                                                  |
+| Debug   | Constellation_Debug   | v1.5.0           | 2022.0912.123456 | `az sig image-version list --resource-group constellation-images --gallery-name Constellation_Debug_CVM --gallery-image-definition v1.5.0 --query "sort_by([], &publishingProfile.publishedDate)[].id" -o table`                                                                                           | `az sig image-version list-community --public-gallery-name ConstellationCVM-d1905bb0-a66c-497e-a9e6-4410ca7e3701 --gallery-image-definition v1.5.0 --location northeurope`                                                                                         |
+| Branch  | Constellation_Testing | ref-cli          | 2022.0912.123456 | `az sig image-version list --resource-group constellation-images --gallery-name Constellation_Testing_CVM --gallery-image-definition $(go run $(git rev-parse --show-toplevel)/hack/pseudo-version/pseudo-version.go -print-branch) --query "sort_by([], &publishingProfile.publishedDate)[].id" -o table` | `az sig image-version list-community --public-gallery-name ConstellationCVM-d1905bb0-a66c-497e-a9e6-4410ca7e3701 --gallery-image-definition $(go run $(git rev-parse --show-toplevel)/hack/pseudo-version/pseudo-version.go -print-branch) --location northeurope` |
