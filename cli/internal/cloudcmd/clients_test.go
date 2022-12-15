@@ -28,6 +28,7 @@ func TestMain(m *testing.M) {
 type stubTerraformClient struct {
 	ip                     string
 	initSecret             string
+	uid                    string
 	cleanUpWorkspaceCalled bool
 	removeInstallerCalled  bool
 	destroyClusterCalled   bool
@@ -37,8 +38,12 @@ type stubTerraformClient struct {
 	cleanUpWorkspaceErr    error
 }
 
-func (c *stubTerraformClient) CreateCluster(ctx context.Context) (string, string, error) {
-	return c.ip, c.initSecret, c.createClusterErr
+func (c *stubTerraformClient) CreateCluster(ctx context.Context) (terraform.CreateOutput, error) {
+	return terraform.CreateOutput{
+		IP:     c.ip,
+		Secret: c.initSecret,
+		UID:    c.uid,
+	}, c.createClusterErr
 }
 
 func (c *stubTerraformClient) PrepareWorkspace(provider cloudprovider.Provider, input terraform.Variables) error {

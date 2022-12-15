@@ -17,7 +17,7 @@ import (
 
 type terraformClient interface {
 	PrepareWorkspace(provider cloudprovider.Provider, input terraform.Variables) error
-	CreateCluster(ctx context.Context) (string, string, error)
+	CreateCluster(ctx context.Context) (terraform.CreateOutput, error)
 	DestroyCluster(ctx context.Context) error
 	CleanUpWorkspace() error
 	RemoveInstaller()

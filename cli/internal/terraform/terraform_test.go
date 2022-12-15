@@ -112,6 +112,9 @@ func TestCreateCluster(t *testing.T) {
 					"initSecret": {
 						Value: "initSecret",
 					},
+					"uid": {
+						Value: "12345abc",
+					},
 				},
 			},
 		}
@@ -191,6 +194,32 @@ func TestCreateCluster(t *testing.T) {
 			fs:      afero.NewMemMapFs(),
 			wantErr: true,
 		},
+		"no uid": {
+			provider: cloudprovider.QEMU,
+			vars:     qemuVars,
+			tf: &stubTerraform{
+				showState: &tfjson.State{
+					Values: &tfjson.StateValues{
+						Outputs: map[string]*tfjson.StateOutput{},
+					},
+				},
+			},
+			fs:      afero.NewMemMapFs(),
+			wantErr: true,
+		},
+		"uid has wrong type": {
+			provider: cloudprovider.QEMU,
+			vars:     qemuVars,
+			tf: &stubTerraform{
+				showState: &tfjson.State{
+					Values: &tfjson.StateValues{
+						Outputs: map[string]*tfjson.StateOutput{"uid": {Value: 42}},
+					},
+				},
+			},
+			fs:      afero.NewMemMapFs(),
+			wantErr: true,
+		},
 	}
 
 	for name, tc := range testCases {
@@ -205,15 +234,16 @@ func TestCreateCluster(t *testing.T) {
 			}
 
 			require.NoError(c.PrepareWorkspace(tc.provider, tc.vars))
-			ip, initSecret, err := c.CreateCluster(context.Background())
+			tfOutput, err := c.CreateCluster(context.Background())
 
 			if tc.wantErr {
 				assert.Error(err)
 				return
 			}
 			assert.NoError(err)
-			assert.Equal("192.0.2.100", ip)
-			assert.Equal("initSecret", initSecret)
+			assert.Equal("192.0.2.100", tfOutput.IP)
+			assert.Equal("initSecret", tfOutput.Secret)
+			assert.Equal("12345abc", tfOutput.UID)
 		})
 	}
 }
