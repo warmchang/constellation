@@ -54,7 +54,7 @@ runs:
     # Recover the control plane
     - name: Constellation recover
       if: ${{ inputs.cloudProvider == 'gcp' }} # TODO: remove
-      run: constellation recover --master-secret=${{ inputs.master-secret }}
+      run: constellation recover --master-secret=${{ inputs.masterSecret }}
       shell: bash
       env:
         KUBECONFIG: ${{ inputs.kubeconfig }}
