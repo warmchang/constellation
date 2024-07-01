@@ -138,10 +138,7 @@ func (c *verifyCmd) verify(cmd *cobra.Command, verifyClient verifyClient, config
 
 	stateFile, err := state.ReadFromFile(c.fileHandler, constants.StateFilename)
 	if err != nil {
-		return fmt.Errorf("reading state file: %w", err)
-	}
-	if err := stateFile.Validate(state.PostInit, conf.GetAttestationConfig().GetVariant()); err != nil {
-		return fmt.Errorf("validating state file: %w", err)
+		stateFile = state.New() // A state file is only required if the user has not provided IP or ID flags
 	}
 
 	ownerID, clusterID, err := c.validateIDFlags(cmd, stateFile)
@@ -380,7 +377,7 @@ func (v *constellationVerifier) Verify(
 	ctx context.Context, endpoint string, req *verifyproto.GetAttestationRequest, validator atls.Validator,
 ) ([]byte, error) {
 	v.log.Debug(fmt.Sprintf("Dialing endpoint: %q", endpoint))
-	conn, err := v.dialer.DialInsecure(ctx, endpoint)
+	conn, err := v.dialer.DialInsecure(endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("dialing init server: %w", err)
 	}
@@ -412,7 +409,7 @@ type verifyClient interface {
 }
 
 type grpcInsecureDialer interface {
-	DialInsecure(ctx context.Context, endpoint string) (conn *grpc.ClientConn, err error)
+	DialInsecure(endpoint string) (conn *grpc.ClientConn, err error)
 }
 
 // writeIndentfln writes a formatted string to the builder with the given indentation level
