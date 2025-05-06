@@ -57,7 +57,7 @@ jobs:
           chmod a+x "$HOME/.local/bin/bazel"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-          curl -fsSL -o "$HOME/.local/bin/nix-installer" https://github.com/DeterminateSystems/nix-installer/releases/download/v3.2.1/nix-installer-x86_64-linux # renovate:github-release
+          curl -fsSL -o "$HOME/.local/bin/nix-installer" https://github.com/DeterminateSystems/nix-installer/releases/download/v3.4.2/nix-installer-x86_64-linux # renovate:github-release
           nixVersion=$(cat .nixversion)
           chmod a+x "$HOME/.local/bin/nix-installer"
           "$HOME/.local/bin/nix-installer" install --no-confirm --nix-package-url "https://releases.nixos.org/nix/nix-$nixVersion/nix-$nixVersion-x86_64-linux.tar.xz"
@@ -175,7 +175,7 @@ jobs:
           ref: ${{ !github.event.pull_request.head.repo.fork && github.head_ref || '' }}
 
       - name: Download binaries
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: "binaries-${{ matrix.target }}-*"
           merge-multiple: true
@@ -209,7 +209,7 @@ jobs:
           ref: ${{ !github.event.pull_request.head.repo.fork && github.head_ref || '' }}
 
       - name: Download os images
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: "osimages-${{ matrix.target }}-*"
           merge-multiple: true
